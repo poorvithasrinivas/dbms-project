@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Bank Dashboard</title>
+
+<style>
+
+body{
+margin:0;
+font-family:Arial;
+display:flex;
+background:#edf2f7;
+}
+
+.sidebar{
+
+width:230px;
+height:100vh;
+
+background:#1e293b;
+
+padding:20px;
+
+color:white;
+}
+
+.sidebar h2{
+text-align:center;
+}
+
+.sidebar a{
+
+display:block;
+
+padding:14px;
+
+margin:15px 0;
+
+background:#334155;
+
+color:white;
+
+text-decoration:none;
+
+border-radius:10px;
+}
+
+
+.main{
+padding:30px;
+width:100%;
+}
+
+.card{
+
+background:white;
+
+padding:25px;
+
+border-radius:20px;
+
+box-shadow:0 0 10px lightgray;
+}
+
+table{
+
+width:100%;
+
+border-collapse:collapse;
+}
+
+td,th{
+
+padding:15px;
+
+border-bottom:1px solid lightgray;
+
+text-align:center;
+}
+
+button{
+
+background:red;
+
+color:white;
+
+border:none;
+
+padding:10px;
+
+border-radius:8px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<div class="sidebar">
+
+<h2>🏦 BANK</h2>
+
+<a href="/">Dashboard</a>
+
+<a href="/add/">Add Customer</a>
+
+<a href="/deposit/">Deposit</a>
+
+<a href="/withdraw/">Withdraw</a>
+
+<a href="/transfer/">Transfer</a>
+
+<a href="/transactions/">Transactions</a>
+
+</div>
+
+
+<div class="main">
+
+<div class="card">
+
+<h1>Customer Accounts</h1>
+
+<table>
+
+<tr>
+
+<th>Account</th>
+<th>Name</th>
+<th>Balance</th>
+<th>Type</th>
+<th>Action</th>
+
+</tr>
+
+
+{% for x in accounts %}
+
+<tr>
+
+<td>{{x.account_number}}</td>
+
+<td>{{x.customer_name}}</td>
+
+<td>₹{{x.balance}}</td>
+
+<td>{{x.account_type}}</td>
+
+<td>
+
+<a href="/delete/{{x.id}}">
+
+<button>Delete</button>
+
+</a>
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+
+<html>
+
+<body style="font-family:Arial;text-align:center;margin-top:100px">
+
+<h1>Add Customer</h1>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<input name="acc_no" placeholder="Account Number"><br><br>
+
+<input name="name" placeholder="Customer Name"><br><br>
+
+<input name="balance" placeholder="Balance"><br><br>
+
+<input name="type" placeholder="Savings"><br><br>
+
+<button>Add</button>
+
+</form>
+
+</body>
+
+</html>

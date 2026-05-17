@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Transfer Money</title>
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background:#f2f2f2;
+            text-align:center;
+            padding-top:100px;
+        }
+
+        .box{
+            background:white;
+            width:450px;
+            margin:auto;
+            padding:40px;
+            border-radius:10px;
+            box-shadow:0px 0px 10px gray;
+        }
+
+        input{
+            width:90%;
+            padding:12px;
+            margin:10px;
+        }
+
+        button{
+            width:95%;
+            padding:12px;
+            background:blue;
+            color:white;
+            border:none;
+            font-size:16px;
+        }
+
+        h2{
+            color:green;
+        }
+
+        h3{
+            color:red;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="box">
+
+    <h1>Transfer Money</h1>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input type="number"
+               name="sender"
+               placeholder="Sender Account Number"
+               required>
+
+        <input type="number"
+               name="receiver"
+               placeholder="Receiver Account Number"
+               required>
+
+        <input type="number"
+               name="amount"
+               placeholder="Enter Amount"
+               required>
+
+        <button type="submit">
+            Transfer
+        </button>
+
+    </form>
+
+    {% if success %}
+        <h2>{{ success }}</h2>
+    {% endif %}
+
+    {% if error %}
+        <h3>{{ error }}</h3>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
