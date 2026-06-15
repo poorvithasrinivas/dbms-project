@@ -1,91 +1,293 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-<title>Transactions</title>
 
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction History – Bank</title>
 
-body{
-font-family:Arial;
-background:#edf2f7;
-padding:30px;
-}
+    <style>
 
-.card{
+        /* ── Reset & Base ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-background:white;
+        body {
+            font-family: Arial, sans-serif;
+            background: #edf2f7;
+            display: flex;
+            min-height: 100vh;
+        }
 
-padding:25px;
+        /* ── Sidebar (identical across all pages) ── */
+        .sidebar {
+            width: 230px;
+            min-height: 100vh;
+            background: #1e293b;
+            padding: 20px;
+            color: white;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 14px;
+            margin: 15px 0;
+            background: #334155;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+        .sidebar a:hover  { background: #475569; }
+        .sidebar a.active { background: #92400e; } /* amber accent for Transactions */
 
-border-radius:20px;
+        /* ── Main content ── */
+        .main {
+            flex: 1;
+            padding: 40px 36px;
+            box-sizing: border-box;
+            overflow-x: auto;
+        }
 
-box-shadow:0 0 15px lightgray;
-}
+        /* ── Page header ── */
+        .page-header {
+            margin-bottom: 28px;
+            animation: fadeSlideDown 0.45s ease both;
+        }
+        .page-header h1 {
+            font-size: 26px;
+            color: #1e293b;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-header p {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 14px;
+        }
 
-table{
+        /* ── Table card ── */
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(30, 41, 59, 0.10);
+            padding: 28px 30px 32px;
+            animation: fadeSlideUp 0.5s ease 0.1s both;
+            overflow: hidden;   /* keep rounded corners around the table */
+        }
 
-width:100%;
+        /* Inner section header (matches form pages) */
+        .table-section-header {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-border-collapse:collapse;
-}
+        /* Row count badge */
+        .row-count {
+            font-size: 12px;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 4px 10px;
+            border-radius: 20px;
+            letter-spacing: 0.4px;
+            font-weight: 600;
+        }
 
-th,td{
+        /* ── Table ── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 500px;   /* prevents collapsing too narrow */
+        }
 
-padding:15px;
+        /* Header row */
+        thead tr {
+            background: #1e293b;   /* matches sidebar colour */
+        }
+        thead th {
+            padding: 14px 18px;
+            color: white;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+        /* Rounded corners on first/last header cells */
+        thead th:first-child { border-radius: 10px 0 0 10px; }
+        thead th:last-child  { border-radius: 0 10px 10px 0; }
 
-border-bottom:1px solid lightgray;
+        /* Body rows */
+        tbody tr {
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.15s;
+        }
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: #f8fafc; }
 
-text-align:center;
-}
+        tbody td {
+            padding: 15px 18px;
+            text-align: center;
+            color: #334155;
+            font-size: 14px;
+        }
 
-th{
+        /* ── Transaction type badge ── */
+        .type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+        /* Colour-code by transaction type */
+        .type-badge.deposit  { background: #dcfce7; color: #15803d; }
+        .type-badge.withdraw { background: #dbeafe; color: #1e40af; }
+        .type-badge.transfer { background: #f3e8ff; color: #7e22ce; }
+        .type-badge.default  { background: #f1f5f9; color: #475569; }
 
-background:#2563eb;
+        /* ── Amount column — make it stand out ── */
+        .amount-cell {
+            font-weight: 700;
+            color: #1e293b;
+            font-size: 15px;
+        }
 
-color:white;
-}
+        /* ── Empty-state message ── */
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: #94a3b8;
+        }
+        .empty-state .empty-icon { font-size: 48px; margin-bottom: 12px; }
+        .empty-state p { font-size: 15px; }
 
-</style>
+        /* ── Animations ── */
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
 
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            body { flex-direction: column; }
+            .sidebar {
+                width: 100%; min-height: auto;
+                display: flex; flex-wrap: wrap;
+                align-items: center; gap: 8px; padding: 14px 16px;
+            }
+            .sidebar h2 { width: 100%; margin-bottom: 0; }
+            .sidebar a  { margin: 0; padding: 10px 14px; font-size: 13px; }
+            .main       { padding: 24px 14px; }
+            .card       { padding: 20px 14px 24px; }
+        }
+
+    </style>
 </head>
-
 <body>
 
-<div class="card">
+    <!-- ── Sidebar Navigation ── -->
+    <div class="sidebar">
+        <h2>🏦 BANK</h2>
+        <a href="/">Dashboard</a>
+        <a href="/add/">Add Customer</a>
+        <a href="/deposit/">Deposit</a>
+        <a href="/withdraw/">Withdraw</a>
+        <a href="/transfer/">Transfer</a>
+        <a href="/transactions/" class="active">Transactions</a>
+    </div>
 
-<h1>Transaction History</h1>
+    <!-- ── Main Content ── -->
+    <div class="main">
 
-<table>
+        <div class="page-header">
+            <h1>📋 Transaction History</h1>
+            <p>A full log of all deposits, withdrawals, and transfers.</p>
+        </div>
 
-<tr>
+        <div class="card">
 
-<th>Type</th>
-<th>Sender</th>
-<th>Receiver</th>
-<th>Amount</th>
+            <!-- Section header with row count badge -->
+            <div class="table-section-header">
+                All Transactions
+                <span class="row-count">{{ data|length }} records</span>
+            </div>
 
-</tr>
+            <!-- Transaction table — context variable `data` is
+                 provided by the transactions() view in views.py   -->
+            <table>
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Sender</th>
+                        <th>Receiver</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
 
-{% for x in data %}
+                    {% for x in data %}
+                    <tr>
+                        <!-- Colour-coded badge based on transaction type -->
+                        <td>
+                            {% if x.transaction_type == "Deposit" %}
+                                <span class="type-badge deposit">Deposit</span>
+                            {% elif x.transaction_type == "Withdraw" %}
+                                <span class="type-badge withdraw">Withdraw</span>
+                            {% elif x.transaction_type == "Transfer" %}
+                                <span class="type-badge transfer">Transfer</span>
+                            {% else %}
+                                <span class="type-badge default">{{ x.transaction_type }}</span>
+                            {% endif %}
+                        </td>
 
-<tr>
+                        <!-- Show em-dash when sender / receiver is null -->
+                        <td>{{ x.sender_account|default:"—" }}</td>
+                        <td>{{ x.receiver_account|default:"—" }}</td>
 
-<td>{{x.transaction_type}}</td>
+                        <td class="amount-cell">₹{{ x.amount }}</td>
+                    </tr>
+                    {% empty %}
+                    <!-- Empty state shown when no transactions exist yet -->
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <div class="empty-icon">📭</div>
+                                <p>No transactions recorded yet.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
 
-<td>{{x.sender_account}}</td>
+                </tbody>
+            </table>
 
-<td>{{x.receiver_account}}</td>
+        </div>
 
-<td>₹{{x.amount}}</td>
-
-</tr>
-
-{% endfor %}
-
-</table>
-
-</div>
+    </div>
 
 </body>
 </html>

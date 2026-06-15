@@ -1,84 +1,290 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Deposit Money</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deposit Money – Bank</title>
 
     <style>
 
-        body{
-            font-family: Arial;
-            background-color:#f2f2f2;
-            text-align:center;
-            padding-top:100px;
+        /* ── Reset & Base ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #edf2f7;        /* shared dashboard background */
+            display: flex;
+            min-height: 100vh;
         }
 
-        .box{
-            background:white;
-            width:400px;
-            margin:auto;
-            padding:40px;
-            border-radius:10px;
-            box-shadow:0px 0px 10px gray;
+        /* ── Sidebar (identical to dashboard & add_customer) ── */
+        .sidebar {
+            width: 230px;
+            min-height: 100vh;
+            background: #1e293b;
+            padding: 20px;
+            color: white;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+        .sidebar a {
+            display: block;
+            padding: 14px;
+            margin: 15px 0;
+            background: #334155;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+        .sidebar a:hover  { background: #475569; }
+        .sidebar a.active { background: #14532d; } /* green accent for Deposit */
+
+        /* ── Main content ── */
+        .main {
+            flex: 1;
+            padding: 40px 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
         }
 
-        input{
-            width:90%;
-            padding:12px;
-            margin:10px;
+        /* ── Page header ── */
+        .page-header {
+            width: 100%;
+            max-width: 520px;
+            margin-bottom: 28px;
+            animation: fadeSlideDown 0.45s ease both;
+        }
+        .page-header h1 {
+            font-size: 26px;
+            color: #1e293b;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .page-header p {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 14px;
         }
 
-        button{
-            width:95%;
-            padding:12px;
-            background:green;
-            color:white;
-            border:none;
-            font-size:16px;
+        /* ── Form card (same as dashboard .card) ── */
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(30, 41, 59, 0.10);
+            padding: 36px 40px 40px;
+            width: 100%;
+            max-width: 520px;
+            animation: fadeSlideUp 0.5s ease 0.1s both;
         }
 
-        h2{
-            color:green;
+        /* Section divider header */
+        .form-section-header {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            color: #94a3b8;
+            margin-bottom: 22px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        /* ── Field groups ── */
+        .field-group { margin-bottom: 22px; }
+        .field-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 7px;
+        }
+        .field-group input {
+            width: 100%;
+            padding: 13px 16px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: Arial, sans-serif;
+            color: #1e293b;
+            background: #f8fafc;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+        }
+        .field-group input:hover  { border-color: #94a3b8; }
+        .field-group input:focus  {
+            border-color: #166534;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(20, 83, 45, 0.15);
+        }
+
+        /* ── Submit button — green theme for Deposit ── */
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            margin-top: 8px;
+            background: linear-gradient(135deg, #14532d, #166534);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: Arial, sans-serif;
+            letter-spacing: 0.4px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.18s, box-shadow 0.18s, background 0.2s;
+            box-shadow: 0 4px 14px rgba(20, 83, 45, 0.28);
+        }
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #166534, #15803d);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(21, 128, 61, 0.32);
+        }
+        .btn-submit:active { transform: translateY(0); }
+
+        /* ── Success feedback banner ── */
+        .feedback-banner {
+            margin-top: 22px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            background: #f0fdf4;
+            border: 1.5px solid #bbf7d0;
+            animation: fadeSlideUp 0.4s ease both;
+        }
+        .feedback-banner .fb-title {
+            color: #15803d;
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .feedback-banner .fb-balance {
+            color: #166534;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        .feedback-banner .fb-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        /* ── Back link ── */
+        .back-link {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #64748b;
+            animation: fadeSlideUp 0.5s ease 0.2s both;
+        }
+        .back-link a { color: #166534; text-decoration: none; font-weight: 600; }
+        .back-link a:hover { text-decoration: underline; }
+
+        /* ── Animations ── */
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+            body { flex-direction: column; }
+            .sidebar {
+                width: 100%; min-height: auto;
+                display: flex; flex-wrap: wrap;
+                align-items: center; gap: 8px; padding: 14px 16px;
+            }
+            .sidebar h2 { width: 100%; margin-bottom: 0; }
+            .sidebar a  { margin: 0; padding: 10px 14px; font-size: 13px; }
+            .main       { padding: 24px 16px; }
+            .form-card  { padding: 28px 22px 32px; }
         }
 
     </style>
-
 </head>
-
 <body>
 
-<div class="box">
+    <!-- ── Sidebar Navigation ── -->
+    <div class="sidebar">
+        <h2>🏦 BANK</h2>
+        <a href="/">Dashboard</a>
+        <a href="/add/">Add Customer</a>
+        <a href="/deposit/" class="active">Deposit</a>
+        <a href="/withdraw/">Withdraw</a>
+        <a href="/transfer/">Transfer</a>
+        <a href="/transactions/">Transactions</a>
+    </div>
 
-    <h1>Deposit Money</h1>
+    <!-- ── Main Content ── -->
+    <div class="main">
 
-    <form method="POST">
+        <div class="page-header">
+            <h1>💵 Deposit Money</h1>
+            <p>Add funds to a customer account instantly.</p>
+        </div>
 
-        {% csrf_token %}
+        <div class="form-card">
 
-        <input type="number"
-               name="account_number"
-               placeholder="Enter Account Number"
-               required>
+            <div class="form-section-header">Deposit Details</div>
 
-        <input type="number"
-               name="amount"
-               placeholder="Enter Amount"
-               required>
+            <!--
+                Form field names (account_number, amount) are preserved
+                exactly as expected by the deposit() view in views.py.
+            -->
+            <form method="POST">
+                {% csrf_token %}
 
-        <button type="submit">
-            Deposit
-        </button>
+                <div class="field-group">
+                    <label for="account_number">Account Number</label>
+                    <input id="account_number"
+                           type="number"
+                           name="account_number"
+                           placeholder="e.g. 100001"
+                           required min="1">
+                </div>
 
-    </form>
+                <div class="field-group">
+                    <label for="amount">Deposit Amount (₹)</label>
+                    <input id="amount"
+                           type="number"
+                           name="amount"
+                           placeholder="e.g. 5000.00"
+                           step="0.01" min="1" required>
+                </div>
 
-    {% if success %}
-        <h2>{{ success }}</h2>
-        <h2>
-    Updated Balance: ₹ {{ balance }}
-</h2>
-    {% endif %}
+                <button type="submit" class="btn-submit">
+                    ✔ Deposit Funds
+                </button>
+            </form>
 
-</div>
+            <!-- Success feedback — rendered if view passes success/balance context -->
+            {% if success %}
+            <div class="feedback-banner">
+                <div class="fb-title">✅ {{ success }}</div>
+                <div class="fb-label">Updated Balance</div>
+                <div class="fb-balance">₹ {{ balance }}</div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <p class="back-link">← Back to <a href="/">Dashboard</a></p>
+
+    </div>
 
 </body>
 </html>

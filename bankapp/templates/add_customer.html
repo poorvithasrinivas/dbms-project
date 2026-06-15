@@ -1,27 +1,389 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
 
-<html>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Customer – Bank</title>
 
-<body style="font-family:Arial;text-align:center;margin-top:100px">
+    <style>
 
-<h1>Add Customer</h1>
+        /* ── Reset & Base ─────────────────────────────────── */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<form method="POST">
+        body {
+            font-family: Arial, sans-serif;
+            background: #edf2f7;           /* same as dashboard */
+            display: flex;
+            min-height: 100vh;
+        }
 
-{% csrf_token %}
+        /* ── Sidebar ──────────────────────────────────────── */
+        /* Matches dashboard.html sidebar exactly */
+        .sidebar {
+            width: 230px;
+            min-height: 100vh;
+            background: #1e293b;
+            padding: 20px;
+            color: white;
+            flex-shrink: 0;
+        }
 
-<input name="acc_no" placeholder="Account Number"><br><br>
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
 
-<input name="name" placeholder="Customer Name"><br><br>
+        .sidebar a {
+            display: block;
+            padding: 14px;
+            margin: 15px 0;
+            background: #334155;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
 
-<input name="balance" placeholder="Balance"><br><br>
+        .sidebar a:hover {
+            background: #475569;
+        }
 
-<input name="type" placeholder="Savings"><br><br>
+        /* Highlight the currently active link */
+        .sidebar a.active {
+            background: #1e6bb8;
+        }
 
-<button>Add</button>
+        /* ── Main content area ────────────────────────────── */
+        .main {
+            flex: 1;
+            padding: 40px 36px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-</form>
+        /* ── Page header ──────────────────────────────────── */
+        .page-header {
+            width: 100%;
+            max-width: 560px;
+            margin-bottom: 28px;
+            /* Fade-in entrance animation */
+            animation: fadeSlideDown 0.45s ease both;
+        }
+
+        .page-header h1 {
+            font-size: 26px;
+            color: #1e293b;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-header p {
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* ── Form card ────────────────────────────────────── */
+        /* Matches the dashboard .card style */
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(30, 41, 59, 0.10);
+            padding: 36px 40px 40px;
+            width: 100%;
+            max-width: 560px;
+            /* Slightly delayed fade-in so the header appears first */
+            animation: fadeSlideUp 0.5s ease 0.1s both;
+        }
+
+        /* Section sub-header inside the card */
+        .form-section-header {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.9px;
+            color: #94a3b8;
+            margin-bottom: 22px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        /* ── Field groups ─────────────────────────────────── */
+        .field-group {
+            margin-bottom: 22px;
+        }
+
+        /* Label above each field */
+        .field-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 7px;
+            letter-spacing: 0.2px;
+        }
+
+        /* Shared style for text inputs and the select dropdown */
+        .field-group input,
+        .field-group select {
+            width: 100%;
+            padding: 13px 16px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+            font-family: Arial, sans-serif;
+            color: #1e293b;
+            background: #f8fafc;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+            appearance: none;           /* normalise across browsers */
+            -webkit-appearance: none;
+        }
+
+        /* Focus ring — uses the dashboard's dark-blue sidebar color */
+        .field-group input:focus,
+        .field-group select:focus {
+            border-color: #1e6bb8;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(30, 107, 184, 0.15);
+        }
+
+        /* Subtle hover before focus */
+        .field-group input:hover,
+        .field-group select:hover {
+            border-color: #94a3b8;
+        }
+
+        /* Custom dropdown arrow for the select */
+        .select-wrapper {
+            position: relative;
+        }
+
+        .select-wrapper::after {
+            content: '▾';
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            pointer-events: none;
+            font-size: 14px;
+        }
+
+        /* ── Submit button ────────────────────────────────── */
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            margin-top: 8px;
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            font-family: Arial, sans-serif;
+            letter-spacing: 0.4px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.18s, box-shadow 0.18s, background 0.2s;
+            box-shadow: 0 4px 14px rgba(30, 41, 59, 0.25);
+        }
+
+        .btn-submit:hover {
+            background: linear-gradient(135deg, #0f4c81, #1e6bb8);
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(30, 107, 184, 0.30);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 8px rgba(30, 41, 59, 0.20);
+        }
+
+        /* ── Back link below the card ─────────────────────── */
+        .back-link {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #64748b;
+            animation: fadeSlideUp 0.5s ease 0.2s both;
+        }
+
+        .back-link a {
+            color: #1e6bb8;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Animations ───────────────────────────────────── */
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0);     }
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0);    }
+        }
+
+        /* ── Responsive: collapse sidebar on small screens ── */
+        @media (max-width: 640px) {
+            body {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-height: auto;
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 8px;
+                padding: 14px 16px;
+            }
+
+            .sidebar h2 {
+                width: 100%;
+                margin-bottom: 0;
+            }
+
+            .sidebar a {
+                margin: 0;
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+
+            .main {
+                padding: 24px 16px;
+            }
+
+            .form-card {
+                padding: 28px 22px 32px;
+            }
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <!-- ── Sidebar Navigation (mirrors dashboard) ── -->
+    <div class="sidebar">
+        <h2>🏦 BANK</h2>
+        <a href="/">Dashboard</a>
+        <a href="/add/" class="active">Add Customer</a>
+        <a href="/deposit/">Deposit</a>
+        <a href="/withdraw/">Withdraw</a>
+        <a href="/transfer/">Transfer</a>
+        <a href="/transactions/">Transactions</a>
+    </div>
+
+    <!-- ── Main Content ── -->
+    <div class="main">
+
+        <!-- Page title section -->
+        <div class="page-header">
+            <h1>👤 Add New Customer</h1>
+            <p>Fill in the details below to register a new bank account.</p>
+        </div>
+
+        <!-- Form card — same card aesthetic as the dashboard -->
+        <div class="form-card">
+
+            <div class="form-section-header">Customer Details</div>
+
+            <!--
+                Form action and method are unchanged.
+                All input name attributes are preserved exactly
+                (acc_no, name, balance, type) so the view logic
+                in views.py continues to work without any changes.
+            -->
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <!-- Account Number field -->
+                <div class="field-group">
+                    <label for="acc_no">Account Number</label>
+                    <input
+                        id="acc_no"
+                        name="acc_no"
+                        type="number"
+                        placeholder="e.g. 100001"
+                        required
+                        min="1"
+                    >
+                </div>
+
+                <!-- Customer Name field -->
+                <div class="field-group">
+                    <label for="cust_name">Customer Name</label>
+                    <input
+                        id="cust_name"
+                        name="name"
+                        type="text"
+                        placeholder="e.g. John Doe"
+                        required
+                    >
+                </div>
+
+                <!-- Initial Balance field -->
+                <div class="field-group">
+                    <label for="balance">Initial Balance (₹)</label>
+                    <input
+                        id="balance"
+                        name="balance"
+                        type="number"
+                        placeholder="e.g. 5000.00"
+                        step="0.01"
+                        min="0"
+                        required
+                    >
+                </div>
+
+                <!-- Account Type dropdown -->
+                <div class="field-group">
+                    <label for="acc_type">Account Type</label>
+                    <div class="select-wrapper">
+                        <select id="acc_type" name="type" required>
+                            <option value="" disabled selected>Select account type</option>
+                            <option value="Savings">Savings</option>
+                            <option value="Current">Current</option>
+                            <option value="Fixed Deposit">Fixed Deposit</option>
+                            <option value="Recurring Deposit">Recurring Deposit</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Submit button -->
+                <button type="submit" class="btn-submit">
+                    ✚ Add Customer
+                </button>
+
+            </form>
+
+        </div>
+        <!-- ── End Form Card ── -->
+
+        <!-- Back to dashboard link -->
+        <p class="back-link">
+            ← Back to <a href="/">Dashboard</a>
+        </p>
+
+    </div>
+    <!-- ── End Main ── -->
 
 </body>
-
 </html>
