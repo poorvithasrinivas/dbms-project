@@ -142,6 +142,92 @@ button{
     cursor:pointer;
 }
 
+/* ── Search bar ── */
+.search-bar-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:22px;
+    /* Sits between the card title and the table */
+}
+
+.search-input{
+    flex:1;
+    padding:11px 16px;
+    border:1.5px solid #cbd5e1;
+    border-radius:10px;
+    font-size:14px;
+    font-family:Arial,sans-serif;
+    color:#1e293b;
+    background:#f8fafc;
+    outline:none;
+    transition:border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.search-input:hover { border-color:#94a3b8; }
+
+.search-input:focus {
+    border-color:#1e6bb8;
+    background:#ffffff;
+    box-shadow:0 0 0 3px rgba(30,107,184,0.15);
+}
+
+/* Search submit button — uses the sidebar's dark colour */
+.search-btn{
+    padding:11px 20px;
+    background:linear-gradient(135deg,#1e293b,#334155);
+    color:white;
+    border:none;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:700;
+    font-family:Arial,sans-serif;
+    cursor:pointer;
+    transition:background 0.2s, transform 0.15s;
+    white-space:nowrap;
+}
+
+.search-btn:hover {
+    background:linear-gradient(135deg,#0f4c81,#1e6bb8);
+    transform:translateY(-1px);
+}
+
+/* Clear / reset link shown only when a query is active */
+.clear-search{
+    font-size:13px;
+    color:#64748b;
+    text-decoration:none;
+    white-space:nowrap;
+    padding:6px 0;
+    transition:color 0.15s;
+}
+
+.clear-search:hover { color:#be123c; }
+
+/* Active-search notice strip */
+.search-notice{
+    font-size:13px;
+    color:#475569;
+    margin-bottom:14px;
+    padding:10px 14px;
+    background:#f1f5f9;
+    border-radius:8px;
+    border-left:3px solid #1e6bb8;
+}
+
+.search-notice strong { color:#1e293b; }
+
+/* Empty-state row when no accounts match the search */
+.empty-state-row td{
+    padding:40px 20px;
+    text-align:center;
+    color:#94a3b8;
+}
+
+.empty-icon { font-size:40px; display:block; margin-bottom:8px; }
+
+.empty-text { font-size:15px; }
+
 </style>
 
 </head>
@@ -197,10 +283,40 @@ button{
     </div>
     <!-- ── End Statistics Cards ── -->
 
-    <!-- ── Customer Accounts Table (unchanged) ── -->
+    <!-- ── Customer Accounts Table with Search ── -->
     <div class="card">
 
         <h1>Customer Accounts</h1>
+
+        <!--
+            Search bar — uses a GET form so the query appears in the URL
+            (e.g. /?q=john), making it bookmarkable and browser-back-friendly.
+            The input name 'q' matches what the dashboard() view reads.
+        -->
+        <form class="search-bar-row" method="GET" action="/">
+            <input
+                class="search-input"
+                type="text"
+                name="q"
+                id="search-input"
+                placeholder="Search by name or account number…"
+                value="{{ search_query }}"
+                autocomplete="off"
+            >
+            <button class="search-btn" type="submit">🔍 Search</button>
+            <!-- Show a 'Clear' link only when a query is currently active -->
+            {% if search_query %}
+                <a class="clear-search" href="/">✕ Clear</a>
+            {% endif %}
+        </form>
+
+        <!-- Contextual notice shown while a search is active -->
+        {% if search_query %}
+        <div class="search-notice">
+            Showing results for <strong>"{{ search_query }}"</strong>
+            — {{ accounts|length }} account{{ accounts|length|pluralize }} found.
+        </div>
+        {% endif %}
 
         <table>
 
@@ -213,7 +329,6 @@ button{
             </tr>
 
             {% for x in accounts %}
-
             <tr>
                 <td>{{ x.account_number }}</td>
                 <td>{{ x.customer_name }}</td>
@@ -225,7 +340,17 @@ button{
                     </a>
                 </td>
             </tr>
-
+            {% empty %}
+            <tr class="empty-state-row">
+                <td colspan="5">
+                    <span class="empty-icon">🔍</span>
+                    <span class="empty-text">
+                        No accounts found for
+                        <strong>"{{ search_query }}"</strong>.<br>
+                        Try a different name or account number.
+                    </span>
+                </td>
+            </tr>
             {% endfor %}
 
         </table>

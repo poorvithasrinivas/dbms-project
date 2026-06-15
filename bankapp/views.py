@@ -5,10 +5,39 @@ from decimal import Decimal
 
 
 def dashboard(request):
-    # Fetch all customer accounts to display in the table
-    accounts = Account.objects.all()
+
+    # --- Customer Search Logic ---
+    # Read the search query from the GET parameter 'q'.
+    # .strip() removes leading/trailing whitespace from the input.
+    search_query = request.GET.get('q', '').strip()
+
+    if search_query:
+        # Filter accounts where:
+        #   - customer_name contains the query (case-insensitive), OR
+        #   - account_number exactly matches the query (if it is numeric).
+        # icontains performs a case-insensitive substring match on the name.
+        name_matches = Account.objects.filter(
+            customer_name__icontains=search_query
+        )
+
+        # Only attempt an account-number lookup when the query is a digit string,
+        # to avoid a ValueError from passing letters to an IntegerField filter.
+        if search_query.isdigit():
+            number_matches = Account.objects.filter(
+                account_number=int(search_query)
+            )
+        else:
+            number_matches = Account.objects.none()
+
+        # Combine both querysets and remove any duplicate rows with distinct().
+        accounts = (name_matches | number_matches).distinct()
+    else:
+        # No search query — return every account (default dashboard view).
+        accounts = Account.objects.all()
 
     # --- Statistics for the summary cards ---
+    # These always reflect the FULL database, not just the filtered results,
+    # so the cards remain accurate regardless of any active search.
 
     # Count of all registered customers (accounts)
     total_customers = Account.objects.count()
@@ -29,6 +58,8 @@ def dashboard(request):
             'total_customers': total_customers,
             'total_balance': total_balance,
             'total_transactions': total_transactions,
+            # Pass the query back so the template can re-populate the search bar
+            'search_query': search_query,
         }
     )
 
