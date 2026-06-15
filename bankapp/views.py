@@ -1,15 +1,35 @@
 from django.shortcuts import render, redirect
+from django.db.models import Sum   # Import Sum for aggregate balance calculation
 from .models import Account, Transaction
 from decimal import Decimal
 
 
 def dashboard(request):
+    # Fetch all customer accounts to display in the table
     accounts = Account.objects.all()
+
+    # --- Statistics for the summary cards ---
+
+    # Count of all registered customers (accounts)
+    total_customers = Account.objects.count()
+
+    # Sum of all account balances; default to 0 if no accounts exist
+    total_balance = Account.objects.aggregate(
+        total=Sum('balance')
+    )['total'] or 0
+
+    # Total number of transactions ever recorded
+    total_transactions = Transaction.objects.count()
 
     return render(
         request,
         'dashboard.html',
-        {'accounts': accounts}
+        {
+            'accounts': accounts,
+            'total_customers': total_customers,
+            'total_balance': total_balance,
+            'total_transactions': total_transactions,
+        }
     )
 
 
