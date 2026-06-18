@@ -50,6 +50,12 @@ def dashboard(request):
     # Total number of transactions ever recorded
     total_transactions = Transaction.objects.count()
 
+    total_customers = accounts.count()
+
+    total_balance = sum(acc.balance for acc in accounts)
+
+    total_transactions = Transaction.objects.count()
+
     return render(
         request,
         'dashboard.html',
