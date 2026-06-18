@@ -239,7 +239,7 @@ button{
 
     <h2>🏦 BANK</h2>
 
-    <a href="/">Dashboard</a>
+    <a href="/" style="background:#1e6bb8;">Dashboard</a>
     <a href="/add/">Add Customer</a>
     <a href="/deposit/">Deposit</a>
     <a href="/withdraw/">Withdraw</a>
@@ -335,7 +335,8 @@ button{
                 <td>₹{{ x.balance }}</td>
                 <td>{{ x.account_type }}</td>
                 <td>
-                    <a href="/delete/{{ x.id }}">
+                   <a href="/delete/{{ x.id }}"
+                   onclick="return confirm('Are you sure you want to delete this customer?')">
                         <button>Delete</button>
                     </a>
                 </td>
@@ -361,4 +362,4 @@ button{
 </div>
 
 </body>
-</html>
+</html>
