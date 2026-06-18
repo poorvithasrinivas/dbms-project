@@ -6,10 +6,21 @@ from decimal import Decimal
 def dashboard(request):
     accounts = Account.objects.all()
 
+    total_customers = accounts.count()
+
+    total_balance = sum(acc.balance for acc in accounts)
+
+    total_transactions = Transaction.objects.count()
+
     return render(
         request,
         'dashboard.html',
-        {'accounts': accounts}
+        {
+            'accounts': accounts,
+            'total_customers': total_customers,
+            'total_balance': total_balance,
+            'total_transactions': total_transactions
+        }
     )
 
 
