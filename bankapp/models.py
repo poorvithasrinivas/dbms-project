@@ -16,6 +16,7 @@ class Transaction(models.Model):
     sender_account = models.IntegerField(null=True, blank=True)
     receiver_account = models.IntegerField(null=True, blank=True)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+    
 
     def __str__(self):
         return self.transaction_type
